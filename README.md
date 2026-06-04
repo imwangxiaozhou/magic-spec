@@ -9,16 +9,22 @@ Magic-Spec 是一套 **AI 辅助的软件开发规约方法论 + 工具链**，�
 ## 🎯 核心理念
 
 ```
-需求/代码分析 → 技术方案(1) → 模块详细设计(2) → 测试操作流程(3) → 数据库结构(4) → API 规范(5)
-                                                                                    ↓
-                                                              ┌───────────────────────┘
+需求/代码分析 → magic-1-tech-design → magic-2-module-design → magic-3-test-operation
+                                                                          ↓
+                                                              ┌───────────┘
                                                               ↓
-                                                    逐功能编码实现(6) ← 需求变更追溯(7)
-                                                              ↑
-                                                              └── sp-1 新需求讨论
+                                                     magic-4-database-schema
+                                                              ↓
+                                                      magic-5-api-spec
+                                                              ↓
+                                               ┌──────────────┴──────────────┐
+                                               ↓                              ↓
+                                      magic-6-code-impl  ←──  magic-7-req-change
+                                               ↑
+                                               └── sp-1-mvplogic 新需求讨论
 ```
 
-**五个文档（1~5）只生成一次**，后续迭代都通过 **6（编码实现）** 和 **7（需求变更）** 两个技能持续演进。新需求点通过 **sp-1** 进行互动式讨论，理清逻辑后再进入标准流程。
+**五个文档（1~5）只生成一次**，后续迭代都通过 `/magic-6-code-impl`（编码实现）和 `/magic-7-req-change`（需求变更）两个技能持续演进。新需求点通过 `/sp-1-mvplogic` 进行互动式讨论，理清逻辑后再进入标准流程。
 
 ---
 
@@ -28,13 +34,13 @@ Magic-Spec 是一套 **AI 辅助的软件开发规约方法论 + 工具链**，�
 
 传统开发中，需求、设计、代码、测试是四张皮。Magic-Spec 通过 **五层文档的逐级引用和双向联动** 强制对齐：
 
-| 维度 | 文档 | 对齐方式 |
-|------|------|----------|
-| 🏗️ 技术方案 | `1-tech-implementation-plan` | T-XX 方案编号贯穿所有文档 |
-| 📦 模块设计 | `2-detailed-design` | M-XX 模块编号，后端 `M-XX-01~09` + 前端 `M-XX-10+` |
-| 🧪 操作流程 | `3-operation-flow` | OP 操作编号精确到步骤，标注"代码实现"状态 |
-| 🗄️ 数据库 | `4-database-schema` | 表结构从 OP 的真实 SQL 中提取，不凭空设计 |
-| 🔌 API 接口 | `5-api-spec` | 接口从 OP 的后端逻辑中提取，字段从表结构映射 |
+| 维度 | 产出文档 | 对齐方式 |
+|------|---------|----------|
+| 🏗️ 技术方案 | `magic-1-tech-design` | T-XX 方案编号贯穿所有文档 |
+| 📦 模块设计 | `magic-2-module-design` | M-XX 模块编号，后端 `M-XX-01~09` + 前端 `M-XX-10+` |
+| 🧪 操作流程 | `magic-3-test-operation` | OP 操作编号精确到步骤，标注"代码实现"状态 |
+| 🗄️ 数据库 | `magic-4-database-schema` | 表结构从 OP 的真实 SQL 中提取，不凭空设计 |
+| 🔌 API 接口 | `magic-5-api-spec` | 接口从 OP 的后端逻辑中提取，字段从表结构映射 |
 
 **对齐链路**：
 ```
@@ -109,36 +115,36 @@ Magic-Spec：OP-3.1.1 → 直接定位到"操作步骤"和"后端逻辑"
 
 ### 一次性生成（1~5）：从需求到完整设计文档链
 
-| 技能 | 核心产出 | 前置依赖 |
+| 命令 | 核心产出 | 前置依赖 |
 |------|---------|---------|
-| **1-tech-implementation-plan** | 技术方案：T-XX 方案拆分、技术栈选型、目录结构 | 需求文档 或 现有代码 |
-| **2-detailed-design** | 模块详细设计：M-XX 模块、功能点拆解、工时评估 | 文档 1 |
-| **3-operation-flow** | 测试操作文档：OP 步骤、导航路径、后端逻辑 | 文档 1、2 |
-| **4-database-schema** | 数据库结构：表字段、索引、ER 关系图 | 文档 1、2、3 |
-| **5-api-spec** | API 接口文档：路径、参数、响应、错误码 | 文档 1、2、3、4 |
+| `/magic-1-tech-design` | 技术方案：T-XX 方案拆分、技术栈选型、目录结构 | 需求文档 或 现有代码 |
+| `/magic-2-module-design` | 模块详细设计：M-XX 模块、功能点拆解、工时评估 | 文档 1 |
+| `/magic-3-test-operation` | 测试操作文档：OP 步骤、导航路径、后端逻辑 | 文档 1、2 |
+| `/magic-4-database-schema` | 数据库结构：表字段、索引、ER 关系图 | 文档 1、2、3 |
+| `/magic-5-api-spec` | API 接口文档：路径、参数、响应、错误码 | 文档 1、2、3、4 |
 
 > 📌 **1~5 文档只生成一次**。不是"每次变更都重做"，而是生成后作为项目的 **持久化规格基准**。
 
 ### 持续迭代（6~7）：编码 + 变更
 
-| 技能 | 核心能力 | 工作方式 |
+| 命令 | 核心能力 | 工作方式 |
 |------|---------|---------|
-| **6-code-impl** | 逐功能实现代码 | 每次一个 OP 步骤 → TDD 先写测试 → 前后端一起 → 更新文档状态 |
-| **7-req-change** | 需求变更管理 | 分配 CHG-XXX 编号 → 五维度深度讨论 → 更新受影响文档 → 代码标记"未实现" |
+| `/magic-6-code-impl` | 逐功能实现代码 | 每次一个 OP 步骤 → TDD 先写测试 → 前后端一起 → 更新文档状态 |
+| `/magic-7-req-change` | 需求变更管理 | 分配 CHG-XXX 编号 → 五维度深度讨论 → 更新受影响文档 → 代码标记"未实现" |
 
 **亮点**：
-- `6-code-impl` 采用 **TDD 方式**：先写测试确认失败，再实现代码直到测试通过。前后端都必须有测试，测试不通过不得标记完成
-- `6-code-impl` 实现前 **自动分析代码变更是否影响设计文档**，有影响先更新文档再编码
-- `7-req-change` 在更新文档前进行 **五维度深度讨论**（背景动机 → 前端设计 → 影响面 → 风险 → 替代方案），提前暴露问题
-- `7-req-change` 分配 **CHG-XXX 变更编号**，贯穿所有受影响文档，`6-code-impl` 实现后回写 `代码：已实现`
+- `/magic-6-code-impl` 采用 **TDD 方式**：先写测试确认失败，再实现代码直到测试通过。前后端都必须有测试，测试不通过不得标记完成
+- `/magic-6-code-impl` 实现前 **自动分析代码变更是否影响设计文档**，有影响先更新文档再编码
+- `/magic-7-req-change` 在更新文档前进行 **五维度深度讨论**（背景动机 → 前端设计 → 影响面 → 风险 → 替代方案），提前暴露问题
+- `/magic-7-req-change` 分配 **CHG-XXX 变更编号**，贯穿所有受影响文档，`/magic-6-code-impl` 实现后回写 `代码：已实现`
 
 ### 自由讨论（sp-1）：新需求孵化器
 
-| 技能 | 核心能力 |
+| 命令 | 核心能力 |
 |------|---------|
-| **sp-1-mvplogic** | 互动式讨论某个需求的实现逻辑 |
+| `/sp-1-mvplogic` | 互动式讨论某个需求的实现逻辑 |
 
-**与众不同**：sp-1 不套模板、不填框架，而是盯着用户提供的内容（一张表、一段代码、一句话需求）**深挖细节、发现用户自己没注意到的问题**：
+**与众不同**：`/sp-1-mvplogic` 不套模板、不填框架，而是盯着用户提供的内容（一张表、一段代码、一句话需求）**深挖细节、发现用户自己没注意到的问题**：
 
 - "你这个表 1000 万行，按你提的 5 分钟全量同步，根本跑不完"
 - "`parent_id` 默认值 `10000000` 是什么含义？这可能影响你的同步逻辑"
@@ -151,22 +157,23 @@ Magic-Spec：OP-3.1.1 → 直接定位到"操作步骤"和"后端逻辑"
 ### 场景一：重构老旧项目
 
 ```
-没有需求文档的老项目 → 启动 1-tech-implementation-plan（代码分析模式）
+没有需求文档的老项目 → /magic-1-tech-design（代码分析模式）
 → 逆向推导技术方案 → 逐技能生成完整文档链 → 基于文档安全重构
 ```
 
 ### 场景二：从零启动新项目
 
 ```
-PRD/需求文档 → 1-tech-implementation-plan（文档模式）→ 2-detailed-design
-→ 3-operation-flow → 4-database-schema → 5-api-spec → 按 OP 逐步骤 6-code-impl
+PRD/需求文档 → /magic-1-tech-design（文档模式）→ /magic-2-module-design
+→ /magic-3-test-operation → /magic-4-database-schema → /magic-5-api-spec
+→ 按 OP 逐步骤 /magic-6-code-impl
 ```
 
 ### 场景三：需求变更不凌乱
 
 ```
-需求变更 → 7-req-change → CHG-XXX 编号分配 → 五维度讨论
-→ 受影响文档自动更新 + 变更记录 → 6-code-impl 按 CHG-XXX 实现代码
+需求变更 → /magic-7-req-change → CHG-XXX 编号分配 → 五维度讨论
+→ 受影响文档自动更新 + 变更记录 → /magic-6-code-impl 按 CHG-XXX 实现代码
 ```
 
 ### 场景四：设计决策可回溯
@@ -212,22 +219,53 @@ magic-align-spec/
 
 ---
 
+## 🚀 安装：加载技能到你的编码助手
+
+Magic-Spec 是一组 **Skill 文件**（每个子目录下的 `SKILL.md`），需要安装到编码助手的 skills 目录下才能通过斜杠命令调用。支持以下编码助手：
+
+| 编码助手 | Skills 目录 | 安装方式 |
+|----------|------------|---------|
+| **Claude Code** | `.claude/skills/` | 复制技能文件夹到该目录 |
+| **Codex** | `.codex/skills/` | 同上 |
+| **Trae** | `.trae/skills/` | 同上 |
+| **OpenCode** | `.opencode/skills/` | 同上 |
+
+### 安装命令
+
+```bash
+# 在项目根目录执行，将所有技能文件夹复制到 Claude Code（以 Claude Code 为例）
+mkdir -p .claude/skills
+
+cp -r 1-tech-implementation-plan .claude/skills/magic-1-tech-design
+cp -r 2-detailed-design        .claude/skills/magic-2-module-design
+cp -r 3-operation-flow         .claude/skills/magic-3-test-operation
+cp -r 4-database-schema        .claude/skills/magic-4-database-schema
+cp -r 5-api-spec               .claude/skills/magic-5-api-spec
+cp -r 6-code-impl              .claude/skills/magic-6-code-impl
+cp -r 7-req-change             .claude/skills/magic-7-req-change
+cp -r sp-1-mvplogic            .claude/skills/sp-1-mvplogic
+```
+
+> 💡 不同编码助手的安装目录只差前缀：`.claude/` → `.codex/` → `.trae/` → `.opencode/`，安装命令如法炮制即可。
+
+---
+
 ## ⚡ 使用方式
 
-Magic-Spec 在 Claude Code 中通过 `/` 斜杠命令调用，格式为 `/<skill-name>`。
+安装完成后，通过 `/` 斜杠命令调用技能（命令名 = SKILL.md 中 `name:` 字段的值）。
 
 ### 启动新项目
 
 ```bash
 # 第一步：设计技术方案（二选一）
-/1-tech-implementation-plan    # 传入 PRD/需求文档，从零设计方案
-/1-tech-implementation-plan     # 不传文档，分析现有项目代码反向推导方案
+/magic-1-tech-design            # 传入 PRD/需求文档，从零设计方案
+/magic-1-tech-design            # 不传文档，分析现有项目代码反向推导方案
 
 # 第二步：生成设计文档链（1→5 逐级生成，每个只做一次）
-/2-detailed-design              # 依赖文档1，生成模块详细设计 + 工时评估
-/3-operation-flow               # 依赖文档1、2，生成测试操作文档
-/4-database-schema              # 依赖文档1、2、3，生成数据库结构
-/5-api-spec                     # 依赖文档1~4，生成API接口文档
+/magic-2-module-design          # 依赖文档1，生成模块详细设计 + 工时评估
+/magic-3-test-operation         # 依赖文档1、2，生成测试操作文档
+/magic-4-database-schema        # 依赖文档1、2、3，生成数据库结构
+/magic-5-api-spec               # 依赖文档1~4，生成API接口文档
 ```
 
 > 💡 **1~5 只跑一轮**。五个文档生成后就是项目的持久化规格基准，不需要重复生成。
@@ -236,32 +274,32 @@ Magic-Spec 在 Claude Code 中通过 `/` 斜杠命令调用，格式为 `/<skill
 
 ```bash
 # 逐功能实现代码（日常使用最高频）
-/6-code-impl                    # 自动找第一个"未实现"的OP，前后端一起写
-/6-code-impl OP-3.1.3           # 指定实现某个操作步骤
+/magic-6-code-impl              # 自动找第一个"未实现"的OP，前后端一起写
+/magic-6-code-impl OP-3.1.3     # 指定实现某个操作步骤
 
 # 需求变更（先讨论、再改文档、后改代码）
-/7-req-change                   # 描述变更内容 → 五维度讨论 → 逐文档更新
+/magic-7-req-change             # 描述变更内容 → 五维度讨论 → 逐文档更新
 ```
 
 ### 新需求探索
 
 ```bash
 # 某个新想法还不确定怎么做，先讨论理清
-/sp-1-mvplogic                 # 互动式讨论，深挖细节，暴露潜在问题
+/sp-1-mvplogic                  # 互动式讨论，深挖细节，暴露潜在问题
 # 讨论结论确定后，如需纳入正式开发：
-# → 判定影响级别：影响文档层级高（方案级变更）则用 /7-req-change 走变更流程
-# → 影响层级低（模块内调整）则直接 /6-code-impl 编码
+# → 判定影响级别：影响文档层级高（方案级变更）则用 /magic-7-req-change 走变更流程
+# → 影响层级低（模块内调整）则直接 /magic-6-code-impl 编码
 ```
 
 ### 重构老项目
 
 ```bash
 # 分析现有项目代码，逆向生成完整文档链
-/1-tech-implementation-plan     # 选"代码分析模式"，扫描项目结构
-/2-detailed-design              # 选"代码分析模式"，从ORM模型提取表结构
-/3-operation-flow               # 选"代码分析模式"，从路由/Controller提取操作流程
-/4-database-schema              # 从操作流程中的SQL提取表结构
-/5-api-spec                     # 从操作流程中的后端逻辑提取API
+/magic-1-tech-design            # 选"代码分析模式"，扫描项目结构
+/magic-2-module-design          # 选"代码分析模式"，从ORM模型提取表结构
+/magic-3-test-operation         # 选"代码分析模式"，从路由/Controller提取操作流程
+/magic-4-database-schema        # 从操作流程中的SQL提取表结构
+/magic-5-api-spec               # 从操作流程中的后端逻辑提取API
 # 文档链完整后，基于文档安全重构代码
 ```
 
