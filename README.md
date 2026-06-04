@@ -21,10 +21,13 @@ Magic-Spec 是一套 **AI 辅助的软件开发规约方法论 + 工具链**，�
                                                ↓                              ↓
                                       magic-6-code-impl  ←──  magic-7-req-change
                                                ↑
-                                               └── sp-1-mvplogic 新需求讨论
+                                    ┌──────────┴──────────┐
+                                    ↓                      ↓
+                            sp-1-mvplogic           sp-2-bughunter
+                            新需求讨论                AI代码Bug扫描
 ```
 
-**五个文档（1~5）只生成一次**，后续迭代都通过 `/magic-6-code-impl`（编码实现）和 `/magic-7-req-change`（需求变更）两个技能持续演进。新需求点通过 `/sp-1-mvplogic` 进行互动式讨论，理清逻辑后再进入标准流程。
+**五个文档（1~5）只生成一次**，后续迭代都通过 `/magic-6-code-impl`（编码实现）和 `/magic-7-req-change`（需求变更）两个技能持续演进。新需求点通过 `/sp-1-mvplogic` 互动讨论理清逻辑，AI 生成代码后通过 `/sp-2-bughunter` 扫描 AI 专属 bug。
 
 ---
 
@@ -144,11 +147,30 @@ Magic-Spec：OP-3.1.1 → 直接定位到"操作步骤"和"后端逻辑"
 |------|---------|
 | `/sp-1-mvplogic` | 互动式讨论某个需求的实现逻辑 |
 
-**与众不同**：`/sp-1-mvplogic` 不套模板、不填框架，而是盯着用户提供的内容（一张表、一段代码、一句话需求）**深挖细节、发现用户自己没注意到的问题**：
+**与众不同**：`/sp-1-mvplogic` 不套模板、不填框架，而是盯着用户提供的内容（一张表、一段代码、一句话需求）**深挖细节、发现用户自己没注意到的问题**。核心原则：**不假设，只询问**——不知道数据量级就问，不确定字段含义就问，不清楚业务规则就问，绝不用假设数据推进讨论：
 
 - "你这个表 1000 万行，按你提的 5 分钟全量同步，根本跑不完"
 - "`parent_id` 默认值 `10000000` 是什么含义？这可能影响你的同步逻辑"
 - "软删除的记录同步不同步？不同步的话关联数据会断裂"
+
+### Bug 扫描（sp-2）：AI 代码专属猎手
+
+| 命令 | 核心能力 |
+|------|---------|
+| `/sp-2-bughunter` | 扫描 AI 生成代码中的专属 bug，只报告不修改 |
+
+**为什么需要它**：AI 生成的代码和人类写的代码，bug 类型完全不同。人类容易出空指针、边界条件；AI 容易出 **兜底掩盖真问题**、**假设性代码**、**happy-path-only**。普通 code review 按人类思维找 bug，AI 的这类问题极易漏掉。
+
+**六种 AI 专属 bug 模式**：
+
+| 模式 | 典型症状 | 为什么危险 |
+|------|---------|-----------|
+| 🎭 **兜底掩盖** | `data?.name ?? ''`、空 catch、静默 return | 真实的数据错误被悄悄吞掉，等发现时数据已丢三个月 |
+| 🤔 **假设性代码** | 字段名猜错、类型猜错、业务规则猜错 | 页面不报错但显示的是错的数据 |
+| 🟢 **Happy-Path Only** | 无 loading/empty/error 态、无事务回滚、无幂等 | 正常流程跑得通，一有异常就出问题 |
+| 🎈 **虚假完整性** | stub 函数、假校验、假权限、假分页 | 代码看起来什么都有，实际什么都没做 |
+| 🔀 **前后端脱节** | 字段名不一致、类型不一致、分页格式不一致 | 前端和后端各说各话，联调时才发现不匹配 |
+| 💀 **死代码** | 未用 import、未调用函数、僵尸代码路径 | 增加维护成本，且两处定义可能已不同步 |
 
 ---
 
@@ -212,9 +234,12 @@ magic-align-spec/
 ├── 5-api-spec/
 │   ├── overview.md              # 接口总览、通用规范
 │   └── M-XX-<模块名>-api.md      # 每个模块的 API 详细设计
-└── sp-1-mvplogic/
-    ├── overview.md              # 讨论索引
-    └── <主题名>.md               # 单次讨论记录
+├── sp-1-mvplogic/
+│   ├── overview.md              # 讨论索引
+│   └── <主题名>.md               # 单次讨论记录
+└── sp-2-bughunter/
+    ├── overview.md              # 扫描记录索引
+    └── <日期>-<范围>.md           # 单次扫描报告
 ```
 
 ---
@@ -244,6 +269,7 @@ cp -r 5-api-spec               .claude/skills/magic-5-api-spec
 cp -r 6-code-impl              .claude/skills/magic-6-code-impl
 cp -r 7-req-change             .claude/skills/magic-7-req-change
 cp -r sp-1-mvplogic            .claude/skills/sp-1-mvplogic
+cp -r sp-2-bughunter           .claude/skills/sp-2-bughunter
 ```
 
 > 💡 不同编码助手的安装目录只差前缀：`.claude/` → `.codex/` → `.trae/` → `.opencode/`，安装命令如法炮制即可。
@@ -289,6 +315,16 @@ cp -r sp-1-mvplogic            .claude/skills/sp-1-mvplogic
 # 讨论结论确定后，如需纳入正式开发：
 # → 判定影响级别：影响文档层级高（方案级变更）则用 /magic-7-req-change 走变更流程
 # → 影响层级低（模块内调整）则直接 /magic-6-code-impl 编码
+```
+
+### AI 代码 Bug 扫描
+
+```bash
+# 代码写完后，扫描 AI 专属 bug
+/sp-2-bughunter                  # 扫描全项目
+/sp-2-bughunter src/api/         # 扫描指定目录
+/sp-2-bughunter src/pages/list.tsx  # 扫描单个文件
+# 输出 bug 报告到 magic-align-spec/sp-2-bughunter/，不修改代码
 ```
 
 ### 重构老项目
